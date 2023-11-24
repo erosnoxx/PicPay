@@ -1,0 +1,18 @@
+[default]
+SECRET_KEY = 'prachedes123'
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+EXTENSIONS = ['app.routes:init_app', 'app.extensions:init_app', 'app.api.v1.api:init_app']
+STATIC_FOLDER = "static"
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 465
+MAIL_USERNAME = "trashboyshub@gmail.com"
+MAIL_PASSWORD = "iumsavhapauftern"
+MAIL_USE_TLS = false
+MAIL_USE_SSL = true
+
+[development]
+SQLALCHEMY_DATABASE_URI = "sqlite:///PicPay.sqlite"
+
+[testing]
+SQLALCHEMY_DATABASE_URI = "sqlite:///"
+WTF_CSRF_ENABLED = false
