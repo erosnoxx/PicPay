@@ -2,7 +2,7 @@ from app.models import User, Type, UserType, Balance, Transaction
 from flask import jsonify, abort, request
 from app.extensions import db
 from werkzeug.security import generate_password_hash
-from app.services.mail import simulate_email_notification
+# from app.services.mail import simulate_email_notification
 from app.services.transfer import transfer
 
 
