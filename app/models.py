@@ -66,6 +66,15 @@ class Transaction(db.Model):
     id_payee = db.Column(db.Integer, db.ForeignKey('users.id'))
     date = db.Column(db.DateTime, default=datetime.now(pytz.timezone('America/Sao_Paulo')).replace(tzinfo=None))
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'amount': self.amount,
+            'id_payer': self.id_payer,
+            'id_payee': self.id_payee,
+            'date': self.date
+        }
+
     def __repr__(self):
         return f'<Transaction {self.amount}>'
 
@@ -76,3 +85,9 @@ class Balance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_owner = db.Column(db.Integer, db.ForeignKey('users.id'))
     amount = db.Column(Numeric(precision=10, scale=2), default=0)
+
+    def to_dict(self):
+        return {
+            "id_owner": self.id_owner,
+            "amount": self.amount
+        }

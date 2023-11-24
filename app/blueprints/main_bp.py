@@ -1,10 +1,10 @@
-import requests
-from flask import Blueprint, render_template, flash, redirect, url_for, current_app, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from app.extensions import lm, db
 from app.models import User, UserType, Balance, Transaction
 from app.forms import BalanceForm, TransferForm
 from app.services.mail import simulate_email_notification
+from app.services.transfer import transfer
 from datetime import datetime
 
 main = Blueprint('main', __name__)
@@ -34,30 +34,23 @@ def index():
             amount = formT.amount.data
             if balance.amount > 0 and balance.amount >= amount:
                 if isinstance(amount, int) and amount > 0:
-                    url = 'https://run.mocky.io/v3/5794d450-d2e2-4412-8131-73d0293ac1cc'
-                    response = requests.get(url)
+                    if transfer():
+                        balance.amount -= amount
+                        db.session.commit()
 
-                    if response.status_code == 200:
-                        data = response.json()
-                        if data.get('message') == 'Autorizado':
-                            balance.amount -= amount
-                            db.session.commit()
+                        receiver_balance = Balance.query.filter_by(id_owner=receiver.id).first()
+                        receiver_balance.amount += amount
+                        db.session.commit()
 
-                            receiver_balance = Balance.query.filter_by(id_owner=receiver.id).first()
-                            receiver_balance.amount += amount
-                            db.session.commit()
+                        transaction = Transaction(id_payer=current_user.id, id_payee=receiver.id, amount=amount)
+                        db.session.add(transaction)
+                        db.session.commit()
 
-                            transaction = Transaction(id_payer=current_user.id, id_payee=receiver.id, amount=amount)
-                            db.session.add(transaction)
-                            db.session.commit()
-
-                            flash('Transferência realizada com sucesso!')
-                            simulate_email_notification(receiver.email)
-                            return redirect(url_for('main.index'))
-                        else:
-                            flash('Transferência negada')
+                        flash('Transferência realizada com sucesso!')
+                        simulate_email_notification(receiver.email)
+                        return redirect(url_for('main.index'))
                     else:
-                        flash('Serviço Indisponível')
+                        flash('Transferência negada')
                 else:
                     flash('Valor inválido')
             else:
