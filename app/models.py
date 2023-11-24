@@ -1,3 +1,4 @@
+import pytz
 from app.extensions import db
 from flask_login import UserMixin
 from datetime import datetime
@@ -13,12 +14,14 @@ class User(db.Model, UserMixin):
     cpf = db.Column(db.String(14), unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(pytz.timezone('America/Sao_Paulo')).replace(tzinfo=None))
 
     types = db.relationship('Type', secondary='user_types', backref='users')
-    transactions_as_payer = db.relationship('Transaction', foreign_keys='Transaction.id_payer', backref='payer_transactions')
-    transactions_as_payee = db.relationship('Transaction', foreign_keys='Transaction.id_payee', backref='payee_transactions')
-    balances = db.relationship('Balance', backref='owner_balance')
+    balance = db.relationship('Balance', backref='users')
+    payer = db.relationship('Transaction', foreign_keys='Transaction.id_payer',
+                            backref='payer_user', lazy='dynamic')
+    payee = db.relationship('Transaction', foreign_keys='Transaction.id_payee',
+                            backref='payee_user', lazy='dynamic')
 
     @property
     def is_authenticated(self):
@@ -43,20 +46,15 @@ class Type(db.Model):
     __tablename__ = 'types'
 
     id = db.Column(db.Integer, primary_key=True)
-    utype = db.Column(db.String(10), unique=True)
-
-    user_types = db.relationship('UserType', backref='types')
+    level = db.Column(db.String(10), nullable=False)
 
 
 class UserType(db.Model):
     __tablename__ = 'user_types'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    type_id = db.Column(db.Integer, db.ForeignKey('types.id'))
-
-    user = db.relationship('User', backref='user_type')
-    type = db.relationship('Type', backref='user_type')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('types.id'), nullable=False)
 
 
 class Transaction(db.Model):
@@ -66,10 +64,7 @@ class Transaction(db.Model):
     amount = db.Column(Numeric(precision=10, scale=2), default=0)
     id_payer = db.Column(db.Integer, db.ForeignKey('users.id'))
     id_payee = db.Column(db.Integer, db.ForeignKey('users.id'))
-    date = db.Column(db.DateTime, default=datetime.utcnow)
-
-    payer = db.relationship('User', foreign_keys=[id_payer], backref=db.backref('payer_transactions', lazy='dynamic'))
-    payee = db.relationship('User', foreign_keys=[id_payee], backref=db.backref('payee_transactions', lazy='dynamic'))
+    date = db.Column(db.DateTime, default=datetime.now(pytz.timezone('America/Sao_Paulo')).replace(tzinfo=None))
 
     def __repr__(self):
         return f'<Transaction {self.amount}>'
@@ -81,5 +76,3 @@ class Balance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_owner = db.Column(db.Integer, db.ForeignKey('users.id'))
     amount = db.Column(Numeric(precision=10, scale=2), default=0)
-
-    owner = db.relationship('User', backref=db.backref('balance', lazy='dynamic'))

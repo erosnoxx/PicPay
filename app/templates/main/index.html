@@ -1,11 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Página Inicial</title>
+    <link rel="stylesheet" href="../../static/css/main/style.css">
 </head>
 <body>
-    Hi
+    <div class="container">
+        <h1>Saldo</h1>
+        <p>{{name}}, seu saldo atual é: R$ <span id="saldo">{{balance}}</span></p>
+
+        <div class="form-container">
+            <h2>Adicionar Saldo</h2>
+            <form id="formAdicionarSaldo" method='post'>
+                {{formB.csrf_token}}
+                <div class="form-group">
+                    {{formB.amount.label}}
+                    {{formB.amount}}
+                </div>
+                {{formB.submit(id_="button")}}
+                <input type="hidden" name="form" value="formB">
+            </form>
+        </div>
+        
+        <div class="form-container">
+            <h2>Transferência</h2>
+            <form id="formTransferencia" method='post'>
+                {{formT.csrf_token}}
+                <div class="form-group">
+                    {{formT.cpf.label}}
+                    {{formT.cpf}}
+                </div>
+                <div class="form-group">
+                    {{formT.amount.label}}
+                    {{formT.amount}}
+                </div>
+                {{formT.submit(id_="button")}}
+                <input type="hidden" name="form" value="formT"> 
+            </form>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, PasswordField
+from wtforms import StringField, SelectField, SubmitField, PasswordField, IntegerField
 from wtforms.validators import Email, DataRequired, Length, EqualTo
 
 
@@ -28,3 +28,14 @@ class LoginForm(FlaskForm):
 class VerificationForm(FlaskForm):
     otp = StringField('OTP', validators=[DataRequired(), Length(min=7, max=7)])
     submit = SubmitField('Verificar')
+
+
+class BalanceForm(FlaskForm):
+    amount = IntegerField('Valor a Adicionar', validators=[DataRequired()])
+    submit = SubmitField('Adicionar')
+
+
+class TransferForm(FlaskForm):
+    cpf = StringField('CPF/CNPJ Destinatário', validators=[DataRequired(), Length(min=11, max=14)])
+    amount = IntegerField('Valor', validators=[DataRequired()])
+    submit = SubmitField('Transferir')

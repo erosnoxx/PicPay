@@ -1,13 +1,67 @@
-from flask import Blueprint, render_template
-from flask_login import login_required
-from app.extensions import lm
-
+import requests
+from flask import Blueprint, render_template, flash, redirect, url_for, current_app, request
+from flask_login import login_required, current_user
+from app.extensions import lm, db
+from app.models import User, UserType, Balance, Transaction
+from app.forms import BalanceForm, TransferForm
+from app.services.mail import simulate_email_notification
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 lm.login_view = 'login.login_'
 
 
-@main.route('/')
+@main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
-    return render_template('main/index.html')
+    formB = BalanceForm()
+    formT = TransferForm()
+    balance = Balance.query.filter_by(id_owner=current_user.id).first()
+
+    if formB.validate_on_submit() and request.form.get('form') == 'formB':
+        amount = formB.amount.data
+        if isinstance(amount, int) and amount > 0:
+            balance.amount += amount
+            db.session.commit()
+            flash('Saldo atualizado com sucesso!')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Valor inválido')
+
+    if formT.validate_on_submit() and request.form.get('form') == 'formT':
+        receiver = User.query.filter_by(cpf=formT.cpf.data).first()
+        if receiver:
+            amount = formT.amount.data
+            if balance.amount > 0 and balance.amount >= amount:
+                if isinstance(amount, int) and amount > 0:
+                    url = 'https://run.mocky.io/v3/5794d450-d2e2-4412-8131-73d0293ac1cc'
+                    response = requests.get(url)
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        if data.get('message') == 'Autorizado':
+                            balance.amount -= amount
+                            db.session.commit()
+
+                            receiver_balance = Balance.query.filter_by(id_owner=receiver.id).first()
+                            receiver_balance.amount += amount
+                            db.session.commit()
+
+                            transaction = Transaction(id_payer=current_user.id, id_payee=receiver.id, amount=amount)
+                            db.session.add(transaction)
+                            db.session.commit()
+
+                            flash('Transferência realizada com sucesso!')
+                            simulate_email_notification(receiver.email)
+                            return redirect(url_for('main.index'))
+                        else:
+                            flash('Transferência negada')
+                    else:
+                        flash('Serviço Indisponível')
+                else:
+                    flash('Valor inválido')
+            else:
+                flash('Saldo Insuficiente')
+        else:
+            flash('CPF/CNPJ não encontrado')
+    return render_template('main/index.html', formB=formB, formT=formT, balance=balance.amount, name=current_user.socialname)

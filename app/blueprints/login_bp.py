@@ -61,13 +61,13 @@ def otp():
             db.session.add(new_user)
             db.session.commit()
 
-            types = Type.query.filter_by(utype=session.get('type').lower()).first()
+            types = Type.query.filter_by(level=session.get('type').lower()).first()
             user_type = UserType(user_id=new_user.id, type_id=types.id)
             db.session.add(user_type)
             db.session.commit()
 
-            user_balance = Balance(id_owner=new_user.id, amount=0)
-            db.session.add(user_balance)
+            balance = Balance(id_owner=new_user.id, amount=0)
+            db.session.add(balance)
             db.session.commit()
 
             session.pop('otp', None)
@@ -94,3 +94,9 @@ def login_():
         else:
             flash('CPF não cadastrado')
     return render_template('login/login.html', form=form)
+
+
+@login.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('main.index'))
