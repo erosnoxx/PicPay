@@ -1,0 +1,31 @@
+body {
+    background-color: #3d3b3b; /* Cor de fundo desejada */
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Espaçamento entre os campos */
+    padding: 20px;
+    width: 300px; /* Largura do formulário */
+    margin: 0 auto; /* Centraliza horizontalmente */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-credentials {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8px;
+    width: 100%; /* Largura total dos campos */
+}
+

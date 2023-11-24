@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../../static/css/login/login.css">
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flashes">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <form class="form" method="post">
+        <h1>Login</h1>
+        <div class="form-credentials">
+            {{form.csrf_token}}
+            {{form.cpf.label}}
+            {{form.cpf}}
+            {{form.password.label}}
+            {{form.password}}   
+        </div>
+        {{form.submit}}
+    </form>
+</body>
+</html>
