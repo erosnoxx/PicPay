@@ -13,5 +13,11 @@ def simulate_email_notification(receiver_email):
 
     if response.status_code == 200:
         flash("E-mail de transferência enviado com sucesso.")
+        return {
+            "message": "Transferência realizada"
+        }
     else:
         flash("Falha ao enviar e-mail de transferência.")
+        return {
+            "message": "Falha ao notificar transferência"
+        }

@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1>Saldo</h1>
-        <p>{{name}}, seu saldo atual é: R$ <span id="saldo">{{balance}}</span></p>
+        <p>{{user.socialname}}, seu saldo atual é: R$ <span id="saldo">{{balance}}</span></p>
 
         <div class="form-container">
             <h2>Adicionar Saldo</h2>
@@ -24,6 +24,8 @@
             </form>
         </div>
         
+        {% if types.level == 'usuário'%}
+
         <div class="form-container">
             <h2>Transferência</h2>
             <form id="formTransferencia" method='post'>
@@ -40,6 +42,8 @@
                 <input type="hidden" name="form" value="formT"> 
             </form>
         </div>
+
+        {% endif %}
     </div>
 </body>
 </html>
